@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package mjolnir;
+
+option go_package = "github.com/tomwilkie/mjolnir/pkg/mjölnir";
+
+message Inode {
+    uint32 perms = 1;   
+    bool is_dir = 2;
+    int64 size = 3;
+    repeated DirEnt dirents = 4;
+    repeated BlkRef blks = 5;
+}
+
+message DirEnt {
+    string name = 1;
+    uint64 id = 2;
+}
+
+message BlkRef {
+    enum Encoding {
+        ERASURE = 0;
+    }
+    Encoding encoding = 1;
+}

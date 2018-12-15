@@ -45,7 +45,7 @@ func (m *Mjölnir) Mkdir(path string, perm os.FileMode) error {
 		}
 
 		t.put(dirInode)
-		t.put(&newInode)
+		t.put(&newInode) // todo make sure we don't overwire with ID collision.
 		return nil
 	})
 }
@@ -115,7 +115,7 @@ func (m *Mjölnir) Remove(path string) error {
 		}
 
 		t.put(inode)
-		t.remote(inodeID)
+		t.delete(inodeID)
 		return nil
 	})
 }
@@ -164,7 +164,7 @@ func (m *Mjölnir) Rename(oldname, newname string) error {
 		}
 
 		t.put(oldDirInode)
-		t.put(newDirInode) // TODO some way to ensure we don't overright due to ID clash.
+		t.put(newDirInode)
 		return nil
 	})
 }

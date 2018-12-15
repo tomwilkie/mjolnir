@@ -17,8 +17,12 @@ func (m *Mjölnir) txn(ctx context.Context, f func(*txn) error) error {
 			ctx: ctx,
 			kv:  m.kv,
 		}
+
 		if err := f(&txn); err != nil {
 			return err
+		}
+		if txn.err != nil {
+			return txn.err
 		}
 
 		_, err := m.kv.Txn(ctx).If(txn.cmps...).Then(txn.ops...).Commit()
@@ -31,6 +35,7 @@ func (m *Mjölnir) txn(ctx context.Context, f func(*txn) error) error {
 type txn struct {
 	ctx  context.Context
 	kv   clientv3.KV
+	err  error
 	cmps []clientv3.Cmp
 	ops  []clientv3.Op
 }
@@ -78,15 +83,15 @@ func (t *txn) get(id uint64) (*inode, error) {
 	return &i, nil
 }
 
-func (t *txn) put(i *inode, opts ...clientv3.OpOption) error {
+func (t *txn) put(i *inode, opts ...clientv3.OpOption) {
 	buf, err := i.Marshal()
 	if err != nil {
-		return err
+		t.err = err
+		return
 	}
 	t.ops = append(t.ops, clientv3.OpPut(i.ID(), buf, opts...))
-	return nil
 }
 
-func (t *txn) remote(id uint64, opts ...clientv3.OpOption) {
+func (t *txn) delete(id uint64, opts ...clientv3.OpOption) {
 	t.ops = append(t.ops, clientv3.OpDelete(strconv.FormatUint(id, 16), opts...))
 }

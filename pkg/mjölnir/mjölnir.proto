@@ -5,11 +5,13 @@ package mjolnir;
 option go_package = "github.com/tomwilkie/mjolnir/pkg/mjölnir";
 
 message Inode {
-    uint32 perms = 1;   
+    uint32 mode = 1;   
     bool is_dir = 2;
     int64 size = 3;
-    repeated DirEnt dirents = 4;
-    repeated BlkRef blks = 5;
+    int64 atime = 4;
+    int64 mtime = 5;
+    repeated DirEnt dirents = 6;
+    repeated BlkRef blks = 7;
 }
 
 message DirEnt {

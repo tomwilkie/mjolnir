@@ -12,13 +12,48 @@ import (
 
 // Create creates a file in the filesystem, returning the file and an
 // error, if any happens.
-func (m *Mjölnir) Create(name string) (afero.File, error) {
-	return nil, nil
+func (m *Mjölnir) Create(path string) (afero.File, error) {
+	ctx := context.Background()
+	path = filepath.Clean(path)
+	dir, filename := filepath.Split(path)
+	var newInode inode
+
+	if err := m.txn(ctx, func(t *txn) error {
+		dirInode, err := t.lookup(dir)
+		if err != nil {
+			return err
+		}
+		if !dirInode.IsDir {
+			return os.ErrInvalid
+		}
+
+		newInode = inode{
+			id: rand.Uint64(),
+			Inode: Inode{
+				Mode: 0644,
+			},
+		}
+
+		if err := dirInode.add(filename, newInode.id); err != nil {
+			return err
+		}
+
+		t.put(dirInode)
+		t.put(&newInode) // todo make sure we don't overwire with ID collision.
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return &file{
+		path:  path,
+		inode: &newInode,
+	}, nil
 }
 
 // Mkdir creates a directory in the filesystem, return an error if any
 // happens.
-func (m *Mjölnir) Mkdir(path string, perm os.FileMode) error {
+func (m *Mjölnir) Mkdir(path string, mode os.FileMode) error {
 	ctx := context.Background()
 	path = filepath.Clean(path)
 	dir, file := filepath.Split(path)
@@ -35,7 +70,7 @@ func (m *Mjölnir) Mkdir(path string, perm os.FileMode) error {
 		newInode := inode{
 			id: rand.Uint64(),
 			Inode: Inode{
-				Perms: uint32(perm),
+				Mode:  uint32(mode),
 				IsDir: true,
 			},
 		}
@@ -180,13 +215,7 @@ func (m *Mjölnir) Stat(path string) (os.FileInfo, error) {
 	}
 
 	_, name := filepath.Split(path)
-
-	return fileInfo{
-		name:  name,
-		mode:  os.FileMode(inode.Perms),
-		size:  inode.Size,
-		isDir: inode.IsDir,
-	}, nil
+	return inode.stat(name), nil
 }
 
 // Name of this FileSystem
@@ -205,13 +234,26 @@ func (m *Mjölnir) Chmod(path string, mode os.FileMode) error {
 			return err
 		}
 
-		inode.Perms = uint32(mode)
+		inode.Mode = uint32(mode)
 		t.put(inode)
 		return nil
 	})
 }
 
 // Chtimes changes the access and modification times of the named file
-func (m *Mjölnir) Chtimes(name string, atime time.Time, mtime time.Time) error {
-	return nil
+func (m *Mjölnir) Chtimes(path string, atime time.Time, mtime time.Time) error {
+	ctx := context.Background()
+	path = filepath.Clean(path)
+
+	return m.txn(ctx, func(t *txn) error {
+		inode, err := t.lookup(path)
+		if err != nil {
+			return err
+		}
+
+		inode.Atime = atime.Unix()
+		inode.Mtime = mtime.Unix()
+		t.put(inode)
+		return nil
+	})
 }

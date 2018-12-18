@@ -30,12 +30,7 @@ func (f *file) Readdirnames(n int) ([]string, error) {
 }
 
 func (f *file) Stat() (os.FileInfo, error) {
-	return fileInfo{
-		name:  f.path,
-		mode:  os.FileMode(f.inode.Perms),
-		size:  f.inode.Size,
-		isDir: f.inode.IsDir,
-	}, nil
+	return f.inode.stat(f.path), nil
 }
 
 type fileInfo struct {

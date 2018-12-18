@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package jarnbjorn;
+
+service Jarnbjorn {
+    rpc Get(GetRequest) returns (stream GetResponse) {};
+    rpc Put(stream PutRequest) returns (PutResponse) {};
+}
+
+message GetRequest {
+    string id = 1;
+    int64 start = 2;
+    int64 length = 3;
+}
+
+message GetResponse {
+    bytes data = 1;
+}
+
+message PutRequest {
+    string id = 1;
+    bytes data = 2;
+}
+
+message PutResponse {
+}

@@ -2,29 +2,30 @@
 
 
 [[projects]]
-  digest = "1:27d5bc29dbac8e8ea4adc1ff63f3f66fdccdeeecda6b4e4bff523b18ddd18526"
+  branch = "master"
+  digest = "1:94e9caf404409a2990cfd22aca37d758494c098eff3e2c37fda1abed862e74dd"
+  name = "bazil.org/fuse"
+  packages = [
+    ".",
+    "fs",
+    "fuseutil",
+  ]
+  pruneopts = "UT"
+  revision = "65cc252bf6691cb3c7014bcb2c8dc29de91e3a7e"
+
+[[projects]]
+  digest = "1:b4ba0dcf39b5ba06f69d9cd4eaacaba334801073099eb8be273d595094c99db3"
   name = "github.com/coreos/etcd"
   packages = [
     "auth/authpb",
     "etcdserver/api/v3rpc/rpctypes",
     "etcdserver/etcdserverpb",
     "mvcc/mvccpb",
-    "pkg/pathutil",
-    "pkg/srv",
     "pkg/types",
-    "version",
   ]
   pruneopts = "UT"
   revision = "27fc7e2296f506182f58ce846e48f36b34fe6842"
   version = "v3.3.10"
-
-[[projects]]
-  digest = "1:0ef770954bca104ee99b3b6b7f9b240605ac03517d9f98cbc1893daa03f3c038"
-  name = "github.com/coreos/go-semver"
-  packages = ["semver"]
-  pruneopts = "UT"
-  revision = "8ab6407b697782a06568d4b7f1db25550ec2e4c6"
-  version = "v0.2.0"
 
 [[projects]]
   digest = "1:a9c85389dbd301c97a3499fe15a2b65b505b5f0cb0f1120dea59f1f3d6b11d96"
@@ -64,20 +65,9 @@
   version = "v1.1.2"
 
 [[projects]]
-  digest = "1:03aa6e485e528acb119fb32901cf99582c380225fc7d5a02758e08b180cb56c3"
-  name = "github.com/ugorji/go"
-  packages = ["codec"]
-  pruneopts = "UT"
-  revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
-  version = "v1.1.1"
-
-[[projects]]
-  digest = "1:822e25cef879bd2312ec2c7b451177762e96680be54d8b07b7732413ed9e3cc2"
+  digest = "1:4f8b8e95cb44091ffd4c8583fc3540927e702398d9db82fae902759213bdf1f4"
   name = "go.etcd.io/etcd"
-  packages = [
-    "client",
-    "clientv3",
-  ]
+  packages = ["clientv3"]
   pruneopts = "UT"
   revision = "27fc7e2296f506182f58ce846e48f36b34fe6842"
   version = "v3.3.10"
@@ -182,9 +172,10 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "bazil.org/fuse",
+    "bazil.org/fuse/fs",
     "github.com/golang/protobuf/proto",
     "github.com/spf13/afero",
-    "go.etcd.io/etcd/client",
     "go.etcd.io/etcd/clientv3",
   ]
   solver-name = "gps-cdcl"
